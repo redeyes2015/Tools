@@ -1,4 +1,4 @@
-#! bash
+#!/bin/bash
 
 curl -V > /dev/null || \
 	( echo "You don't have curl installed!" && exit 1 )
@@ -20,6 +20,15 @@ IP=$1
 IMG=$2
 
 if [ -z "$IMG" ] ; then IMG=images/firmware.img ; fi
+
+if [ ! -f "$IMG" ] ; then
+	echo "$IMG not found!"
+	exit 1
+elif [ ! -s "$IMG" ] ; then
+	echo "$IMG has zero size!?"
+	exit 1
+fi
+
 ENCODE=`echo -n "$USER:$PASSWD" | base64`
 
 COOKIE=`curl -s -D - --cookie /dev/null -d "encode=$ENCODE&mode=liveview" http://$IP/fcgi-bin/system.login \
@@ -27,7 +36,13 @@ COOKIE=`curl -s -D - --cookie /dev/null -d "encode=$ENCODE&mode=liveview" http:/
 
 if [ -z "$COOKIE" ] ; then 
 	echo "Cannot get cookies..."
-	exit 0
+	exit 1
 fi
-#curl -v --cookie $COOKIE -F "send_file=@$IMG" http://$IP/fcgi-bin/system.upgrade
-curl --cookie $COOKIE -d 'path=/system/software/meteor/encoder' http://$IP/fcgi-bin/dbusproxy.gconf_query
+
+if [ -t 1 ] ; then
+	curl --cookie $COOKIE -F "send_file=@$IMG" http://$IP/fcgi-bin/system.upgrade > /dev/null
+else
+	curl -s --cookie $COOKIE -F "send_file=@$IMG" http://$IP/fcgi-bin/system.upgrade > /dev/null || \
+		echo 'upload failed..!?'
+fi
+#curl --cookie $COOKIE -d 'path=/system/software/meteor/encoder' http://$IP/fcgi-bin/dbusproxy.gconf_query
