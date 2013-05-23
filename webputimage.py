@@ -153,7 +153,7 @@ if not sys.stdout.isatty():
 	upload_cmd.insert(1, "-s")
 
 print "uploading..."
-proc = Popen(upload_cmd, stdout=open('/dev/null'))
+proc = Popen(upload_cmd, stdout=open('/dev/null', 'w'))
 
 proc.wait()
 
