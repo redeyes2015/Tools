@@ -128,7 +128,7 @@ def get_cookie(encode, ip):
 		if 'Set-Cookie' not in l:
 			continue
 		cookies.append(l.split(" ")[1].strip())
-	return "".join(cookies)
+	return ";".join(cookies)
 
 cookies = get_cookie(encode, ip)
 
